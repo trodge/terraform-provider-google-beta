@@ -152,9 +152,9 @@ func resourceGkeHubFeatureCreate(d *schema.ResourceData, meta interface{}) error
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return err
 	}
 	d.SetId(id)
 	createDirective := CreateDirective

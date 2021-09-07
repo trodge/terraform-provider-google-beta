@@ -58,6 +58,15 @@ var EventarcEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var OrgPolicyEndpointEntryKey = "org_policy_custom_endpoint"
+var OrgPolicyEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 var PrivatecaEndpointEntryKey = "privateca_custom_endpoint"
 var PrivatecaEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -72,6 +81,7 @@ var PrivatecaEndpointEntry = &schema.Schema{
 //CloudBuildWorkerPoolBasePath string
 //ComputeBasePath string
 //EventarcBasePath string
+//OrgPolicyBasePath string
 //PrivatecaBasePath string
 
 //Add new values to provider.go.erb schema initialization
@@ -79,6 +89,7 @@ var PrivatecaEndpointEntry = &schema.Schema{
 // CloudBuildWorkerPoolEndpointEntryKey:               CloudBuildWorkerPoolEndpointEntry,
 // ComputeEndpointEntryKey:               ComputeEndpointEntry,
 // EventarcEndpointEntryKey:               EventarcEndpointEntry,
+// OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
 // PrivatecaEndpointEntryKey:               PrivatecaEndpointEntry,
 
 //Add new values to provider.go.erb - provider block read
@@ -86,4 +97,5 @@ var PrivatecaEndpointEntry = &schema.Schema{
 // config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
 // config.ComputeBasePath = d.Get(ComputeEndpointEntryKey).(string)
 // config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
+// config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 // config.PrivatecaBasePath = d.Get(PrivatecaEndpointEntryKey).(string)

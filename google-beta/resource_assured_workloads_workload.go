@@ -210,9 +210,9 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 	}
 
-	id, err := replaceVarsForId(d, config, "organizations/{{organization}}/locations/{{location}}/workloads/{{name}}")
+	id, err := obj.ID()
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return err
 	}
 	d.SetId(id)
 	createDirective := CreateDirective
