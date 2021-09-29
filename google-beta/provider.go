@@ -772,6 +772,7 @@ func Provider() *schema.Provider {
 			GkeHubFeatureCustomEndpointEntryKey:          GkeHubFeatureCustomEndpointEntry,
 			OrgPolicyEndpointEntryKey:                    OrgPolicyEndpointEntry,
 			PrivatecaCertificateTemplateEndpointEntryKey: PrivatecaCertificateTemplateCustomEndpointEntry,
+			VmwareEngineEndpointEntryKey:                 VmwareEngineEndpointEntry,
 
 			CloudBuildWorkerPoolEndpointEntryKey: CloudBuildWorkerPoolEndpointEntry,
 		},
@@ -1346,6 +1347,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_hub_feature":                     resourceGkeHubFeature(),
 			"google_gke_hub_feature_membership":          resourceGkeHubFeatureMembership(),
 			"google_monitoring_monitored_project":        resourceMonitoringMonitoredProject(),
+			"google_vmware_engine_private_cloud":         resourceVmwareEnginePrivateCloud(),
 			"google_org_policy_policy":                   resourceOrgPolicyPolicy(),
 			"google_privateca_certificate_template":      resourcePrivatecaCertificateTemplate(),
 		},

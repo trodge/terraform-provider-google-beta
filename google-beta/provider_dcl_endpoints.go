@@ -94,6 +94,15 @@ var PrivatecaEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
+var VmwareEngineEndpointEntryKey = "vmware_engine_custom_endpoint"
+var VmwareEngineEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+		"GOOGLE_VMWARE_ENGINE_CUSTOM_ENDPOINT",
+	}, ""),
+}
+
 //Add new values to config.go.erb config object declaration
 //AssuredWorkloadsBasePath string
 //CloudBuildWorkerPoolBasePath string
@@ -103,6 +112,7 @@ var PrivatecaEndpointEntry = &schema.Schema{
 //MonitoringBasePath string
 //OrgPolicyBasePath string
 //PrivatecaBasePath string
+//VmwareEngineBasePath string
 
 //Add new values to provider.go.erb schema initialization
 // AssuredWorkloadsEndpointEntryKey:               AssuredWorkloadsEndpointEntry,
@@ -113,6 +123,7 @@ var PrivatecaEndpointEntry = &schema.Schema{
 // MonitoringEndpointEntryKey:               MonitoringEndpointEntry,
 // OrgPolicyEndpointEntryKey:               OrgPolicyEndpointEntry,
 // PrivatecaEndpointEntryKey:               PrivatecaEndpointEntry,
+// VmwareEngineEndpointEntryKey:               VmwareEngineEndpointEntry,
 
 //Add new values to provider.go.erb - provider block read
 // config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
@@ -123,3 +134,4 @@ var PrivatecaEndpointEntry = &schema.Schema{
 // config.MonitoringBasePath = d.Get(MonitoringEndpointEntryKey).(string)
 // config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 // config.PrivatecaBasePath = d.Get(PrivatecaEndpointEntryKey).(string)
+// config.VmwareEngineBasePath = d.Get(VmwareEngineEndpointEntryKey).(string)

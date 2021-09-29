@@ -28,6 +28,7 @@ import (
 	monitoring "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/monitoring/beta"
 	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy/beta"
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca/beta"
+	vmwareengine "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/vmwareengine/beta"
 )
 
 func NewDCLAssuredWorkloadsClient(config *Config, userAgent, billingProject string) *assuredworkloads.Client {
@@ -218,4 +219,23 @@ func NewDCLPrivatecaClient(config *Config, userAgent, billingProject string) *pr
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return privateca.NewClient(dclConfig)
+}
+
+func NewDCLVmwareEngineClient(config *Config, userAgent, billingProject string) *vmwareengine.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.VmwareEngineBasePath),
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return vmwareengine.NewClient(dclConfig)
 }
