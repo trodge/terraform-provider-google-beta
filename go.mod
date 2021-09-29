@@ -1,4 +1,5 @@
 module github.com/hashicorp/terraform-provider-google-beta
+
 require (
 	cloud.google.com/go/bigtable v1.10.1
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v0.0.0-20210923224644-6d2562f679ca
@@ -28,3 +29,5 @@ require (
 )
 
 go 1.16
+
+replace github.com/GoogleCloudPlatform/declarative-resource-client-library => /usr/local/google/home/thomasrodgers/Code/declarative-resource-client-library
