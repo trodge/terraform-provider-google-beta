@@ -195,7 +195,6 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterNetworkPolicyEmptyCustomizeDiff,
 			containerClusterSurgeSettingsCustomizeDiff,
 			containerClusterEnableK8sBetaApisCustomizeDiff,
-			containerClusterNodeVersionCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -2042,22 +2041,6 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
-			"workload_alts_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				MaxItems:    1,
-				Description: `Configuration for direct-path (via ALTS) with workload identity.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enable_alts": {
-							Type:        schema.TypeBool,
-							Required:    true,
-							Description: `Whether the alts handshaker should be enabled or not for direct-path. Requires Workload Identity (workloadPool must be non-empty).`,
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -2379,10 +2362,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			cluster.AddonsConfig.GcePersistentDiskCsiDriverConfig = &container.GcePersistentDiskCsiDriverConfig{}
 		}
 		cluster.AddonsConfig.GcePersistentDiskCsiDriverConfig.Enabled = true
-	}
-
-	if v, ok := d.GetOk("workload_alts_config"); ok {
-		cluster.WorkloadAltsConfig = expandWorkloadAltsConfig(v)
 	}
 
 	req := &container.CreateClusterRequest{
@@ -2855,10 +2834,6 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("workload_alts_config", flattenWorkloadAltsConfig(cluster.WorkloadAltsConfig)); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -2989,6 +2964,26 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's autopilot workload policy config allow_net_admin has been set to %v", d.Id(), allowed)
+	}
+
+	if d.HasChange("enable_binary_authorization") {
+		enabled := d.Get("enable_binary_authorization").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredBinaryAuthorization: &container.BinaryAuthorization{
+					Enabled:         enabled,
+					ForceSendFields: []string{"Enabled"},
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE binary authorization")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's binary authorization has been updated to %v", d.Id(), enabled)
 	}
 
 	if d.HasChange("private_cluster_config.0.enable_private_endpoint") {
@@ -4134,20 +4129,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] GKE cluster %s Protect Config has been updated to %#v", d.Id(), req.Update.DesiredProtectConfig)
 	}
-	if d.HasChange("workload_alts_config") {
-		req := &container.UpdateClusterRequest{
-			Update: &container.ClusterUpdate{
-				DesiredWorkloadAltsConfig: expandWorkloadAltsConfig(d.Get("workload_alts_config")),
-			},
-		}
 
-		updateF := updateFunc(req, "updating GKE cluster WorkloadALTSConfig")
-		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
-			return err
-		}
-
-		log.Printf("[INFO] GKE cluster %s's WorkloadALTSConfig has been updated", d.Id())
-	}
 	return resourceContainerClusterRead(d, meta)
 }
 
@@ -5336,19 +5318,6 @@ func expandNodePoolAutoConfigNetworkTags(configured interface{}) *container.Netw
 	return nt
 }
 
-func expandWorkloadAltsConfig(configured interface{}) *container.WorkloadALTSConfig {
-	l := configured.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil
-	}
-
-	config := l[0].(map[string]interface{})
-	return &container.WorkloadALTSConfig{
-		EnableAlts:      config["enable_alts"].(bool),
-		ForceSendFields: []string{"EnableAlts"},
-	}
-}
-
 func flattenNotificationConfig(c *container.NotificationConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
@@ -6098,17 +6067,6 @@ func flattenNodePoolAutoConfigNetworkTags(c *container.NetworkTags) []map[string
 	return []map[string]interface{}{result}
 }
 
-func flattenWorkloadAltsConfig(c *container.WorkloadALTSConfig) []map[string]interface{} {
-	if c == nil {
-		return nil
-	}
-	return []map[string]interface{}{
-		{
-			"enable_alts": c.EnableAlts,
-		},
-	}
-}
-
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
@@ -6387,35 +6345,6 @@ func containerClusterEnableK8sBetaApisCustomizeDiffFunc(d tpgresource.TerraformR
 				return d.ForceNew("enable_k8s_beta_apis.0.enabled_apis")
 			}
 		}
-	}
-
-	return nil
-}
-
-func containerClusterNodeVersionCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	// separate func to allow unit testing
-	return containerClusterNodeVersionCustomizeDiffFunc(diff)
-}
-
-func containerClusterNodeVersionCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {
-	oldValueName, _ := diff.GetChange("name")
-	if oldValueName != "" {
-		return nil
-	}
-
-	_, newValueNode := diff.GetChange("node_version")
-	_, newValueMaster := diff.GetChange("min_master_version")
-
-	if newValueNode == "" || newValueMaster == "" {
-		return nil
-	}
-
-	//ignore -gke.X suffix for now. If it becomes a problem later, we can fix it
-	masterVersion := strings.Split(newValueMaster.(string), "-")[0]
-	nodeVersion := strings.Split(newValueNode.(string), "-")[0]
-
-	if masterVersion != nodeVersion {
-		return fmt.Errorf("Resource argument node_version (value: %s) must either be unset or set to the same value as min_master_version (value: %s) on create.", newValueNode, newValueMaster)
 	}
 
 	return nil

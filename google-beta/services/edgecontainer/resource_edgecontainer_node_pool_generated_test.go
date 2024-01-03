@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package integrationconnectors_test
+package edgecontainer_test
 
 import (
 	"fmt"
@@ -30,7 +30,8 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google-beta/google-beta/transport"
 )
 
-func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpointAttachmentExample(t *testing.T) {
+func TestAccEdgecontainerNodePool_edgecontainerLocalControlPlaneNodePoolInternalExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -40,39 +41,69 @@ func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpoin
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIntegrationConnectorsEndpointAttachmentDestroyProducer(t),
+		CheckDestroy:             testAccCheckEdgecontainerNodePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpointAttachmentExample(context),
+				Config: testAccEdgecontainerNodePool_edgecontainerLocalControlPlaneNodePoolInternalExample(context),
 			},
 			{
-				ResourceName:            "google_integration_connectors_endpoint_attachment.sampleendpointattachment",
+				ResourceName:            "google_edgecontainer_node_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "location", "cluster", "labels", "terraform_labels"},
 			},
 		},
 	})
 }
 
-func testAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpointAttachmentExample(context map[string]interface{}) string {
+func testAccEdgecontainerNodePool_edgecontainerLocalControlPlaneNodePoolInternalExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_integration_connectors_endpoint_attachment" "sampleendpointattachment" {
-  name     = "tf-test-test-endpoint-attachment%{random_suffix}"
+resource "google_edgecontainer_cluster" "cluster" {
+  name = "tf-lcp-cluster"
   location = "us-central1"
-  description = "tf created description"
-  service_attachment = "projects/connectors-example/regions/us-central1/serviceAttachments/test"
-  labels = {
-    foo = "bar"
+
+  authorization {
+    admin_users {
+      username = "admin@hashicorptest.com"
+    }
+  }
+
+  networking {
+    cluster_ipv4_cidr_blocks = ["10.16.0.0/16"]
+    services_ipv4_cidr_blocks = ["10.17.0.0/16"]
+  }
+
+  fleet {
+    project = "projects/${data.google_project.project.number}"
+  }
+
+  external_load_balancer_ipv4_address_pools = ["172.17.34.97-172.17.34.99"]
+
+  control_plane {
+    local {
+      node_location = "us-central1-edge-den25349"
+      node_count = 1
+      shared_deployment_policy = "ALLOWED"
+    }
   }
 }
+
+resource "google_edgecontainer_node_pool" "default" {
+  name = "nodepool-1"
+  cluster = google_edgecontainer_cluster.cluster.name
+  location = "us-central1"
+  node_location = "us-central1-edge-den25349"
+  node_count = 1
+}
+
+data "google_project" "project" {}
 `, context)
 }
 
-func testAccCheckIntegrationConnectorsEndpointAttachmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckEdgecontainerNodePoolDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_integration_connectors_endpoint_attachment" {
+			if rs.Type != "google_edgecontainer_node_pool" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -81,7 +112,7 @@ func testAccCheckIntegrationConnectorsEndpointAttachmentDestroyProducer(t *testi
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IntegrationConnectorsBasePath}}projects/{{project}}/locations/{{location}}/endpointAttachments/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -100,7 +131,7 @@ func testAccCheckIntegrationConnectorsEndpointAttachmentDestroyProducer(t *testi
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("IntegrationConnectorsEndpointAttachment still exists at %s", url)
+				return fmt.Errorf("EdgecontainerNodePool still exists at %s", url)
 			}
 		}
 

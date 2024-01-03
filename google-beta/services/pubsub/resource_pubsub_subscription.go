@@ -78,9 +78,7 @@ func ResourcePubsubSubscription() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description: `A reference to a Topic resource, of the form projects/{project}/topics/{{name}}
-(as in the id property of a google_pubsub_topic), or just a topic name if
-the topic is in the same project as the subscription.`,
+				Description:      `A reference to a Topic resource.`,
 			},
 			"ack_deadline_seconds": {
 				Type:     schema.TypeInt,
@@ -646,7 +644,6 @@ func resourcePubsubSubscriptionPollRead(d *schema.ResourceData, meta interface{}
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions/{{name}}")
-
 		if err != nil {
 			return nil, err
 		}

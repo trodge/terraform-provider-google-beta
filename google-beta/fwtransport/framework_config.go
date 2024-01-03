@@ -75,7 +75,6 @@ type FrameworkProviderConfig struct {
 	CloudAssetBasePath               string
 	CloudBuildBasePath               string
 	Cloudbuildv2BasePath             string
-	ClouddeployBasePath              string
 	CloudFunctionsBasePath           string
 	Cloudfunctions2BasePath          string
 	CloudIdentityBasePath            string
@@ -234,7 +233,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.CloudAssetBasePath = data.CloudAssetCustomEndpoint.ValueString()
 	p.CloudBuildBasePath = data.CloudBuildCustomEndpoint.ValueString()
 	p.Cloudbuildv2BasePath = data.Cloudbuildv2CustomEndpoint.ValueString()
-	p.ClouddeployBasePath = data.ClouddeployCustomEndpoint.ValueString()
 	p.CloudFunctionsBasePath = data.CloudFunctionsCustomEndpoint.ValueString()
 	p.Cloudfunctions2BasePath = data.Cloudfunctions2CustomEndpoint.ValueString()
 	p.CloudIdentityBasePath = data.CloudIdentityCustomEndpoint.ValueString()
@@ -647,14 +645,6 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.Cloudbuildv2BasePathKey])
 		if customEndpoint != nil {
 			data.Cloudbuildv2CustomEndpoint = types.StringValue(customEndpoint.(string))
-		}
-	}
-	if data.ClouddeployCustomEndpoint.IsNull() {
-		customEndpoint := transport_tpg.MultiEnvDefault([]string{
-			"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
-		}, transport_tpg.DefaultBasePaths[transport_tpg.ClouddeployBasePathKey])
-		if customEndpoint != nil {
-			data.ClouddeployCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudFunctionsCustomEndpoint.IsNull() {
@@ -1553,6 +1543,15 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, "")
 		if customEndpoint != nil {
 			data.CloudBuildWorkerPoolCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+
+	if data.CloudDeployCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
+		}, "")
+		if customEndpoint != nil {
+			data.CloudDeployCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 

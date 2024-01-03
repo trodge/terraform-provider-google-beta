@@ -202,10 +202,7 @@ resource "google_alloydb_backup" "default" {
 	encryption_config {
 		kms_key_name = google_kms_crypto_key.key.id
 	}
-	depends_on = [
-		google_alloydb_instance.default,
-		google_kms_crypto_key_iam_member.crypto_key
-	]
+	depends_on = [google_alloydb_instance.default]
 }
 	  
 resource "google_alloydb_cluster" "default" {

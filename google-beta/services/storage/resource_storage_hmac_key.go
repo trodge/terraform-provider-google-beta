@@ -201,7 +201,6 @@ func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) tr
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
-
 		if err != nil {
 			return nil, err
 		}

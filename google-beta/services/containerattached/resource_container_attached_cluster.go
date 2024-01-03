@@ -1167,27 +1167,23 @@ func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.Resou
 //	   ],
 //	}
 func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || len(v.(map[string]interface{})) == 0 {
+	if v == nil {
 		return nil
 	}
 
+	orig := v.(map[string]interface{})["adminUsers"].([]interface{})
 	transformed := make(map[string][]string)
-	if v.(map[string]interface{})["adminUsers"] != nil {
-		orig := v.(map[string]interface{})["adminUsers"].([]interface{})
-		transformed["admin_users"] = make([]string, len(orig))
-		for i, u := range orig {
-			if u != nil {
-				transformed["admin_users"][i] = u.(map[string]interface{})["username"].(string)
-			}
+	transformed["admin_users"] = make([]string, len(orig))
+	for i, u := range orig {
+		if u != nil {
+			transformed["admin_users"][i] = u.(map[string]interface{})["username"].(string)
 		}
 	}
-	if v.(map[string]interface{})["adminGroups"] != nil {
-		orig := v.(map[string]interface{})["adminGroups"].([]interface{})
-		transformed["admin_groups"] = make([]string, len(orig))
-		for i, u := range orig {
-			if u != nil {
-				transformed["admin_groups"][i] = u.(map[string]interface{})["group"].(string)
-			}
+	orig = v.(map[string]interface{})["adminGroups"].([]interface{})
+	transformed["admin_groups"] = make([]string, len(orig))
+	for i, u := range orig {
+		if u != nil {
+			transformed["admin_groups"][i] = u.(map[string]interface{})["group"].(string)
 		}
 	}
 

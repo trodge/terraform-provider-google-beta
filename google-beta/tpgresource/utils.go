@@ -660,9 +660,6 @@ func BuildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *tr
 		if err != nil {
 			return nil, err
 		}
-		if shorten {
-			project = strings.TrimPrefix(project, "projects/")
-		}
 	}
 
 	if strings.Contains(linkTmpl, "{{project_id_or_project}}") {
@@ -676,10 +673,6 @@ func BuildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *tr
 		if err != nil {
 			return nil, err
 		}
-		if shorten {
-			project = strings.TrimPrefix(project, "projects/")
-			projectID = strings.TrimPrefix(projectID, "projects/")
-		}
 	}
 
 	if strings.Contains(linkTmpl, "{{region}}") {
@@ -687,18 +680,12 @@ func BuildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *tr
 		if err != nil {
 			return nil, err
 		}
-		if shorten {
-			region = strings.TrimPrefix(region, "regions/")
-		}
 	}
 
 	if strings.Contains(linkTmpl, "{{zone}}") {
 		zone, err = GetZone(d, config)
 		if err != nil {
 			return nil, err
-		}
-		if shorten {
-			zone = strings.TrimPrefix(zone, "zones/")
 		}
 	}
 

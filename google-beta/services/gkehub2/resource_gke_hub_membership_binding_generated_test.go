@@ -38,8 +38,6 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 		"project":             envvar.GetTestProjectFromEnv(),
 		"location":            envvar.GetTestRegionFromEnv(),
 		"deletion_protection": false,
-		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -64,12 +62,10 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 func testAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "tf-test-basic-cluster%{random_suffix}"
+  name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection  = "%{deletion_protection}"
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_hub_membership" "membership" {

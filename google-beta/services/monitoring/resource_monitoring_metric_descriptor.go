@@ -317,7 +317,6 @@ func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta int
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
-
 		if err != nil {
 			return nil, err
 		}

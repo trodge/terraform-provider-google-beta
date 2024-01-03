@@ -3739,7 +3739,6 @@ resource "google_sql_database_instance" "master" {
       binary_log_enabled = true
     }
   }
-  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
 }
 
 resource "google_sql_database_instance" "replica" {
@@ -3797,8 +3796,6 @@ resource "google_sql_database_instance" "master" {
       binary_log_enabled = true
     }
   }
-
-  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
 }
 
 resource "google_kms_key_ring" "keyring-rep" {
@@ -3832,10 +3829,7 @@ resource "google_sql_database_instance" "replica" {
     tier = "db-n1-standard-1"
   }
 
-  depends_on = [
-    google_sql_database_instance.master,
-    google_kms_crypto_key_iam_member.crypto_key_rep
-  ]
+  depends_on = [google_sql_database_instance.master]
 }
 `
 

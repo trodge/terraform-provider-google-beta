@@ -19,8 +19,6 @@ func TestAccComputeNetwork_explicitAutoSubnet(t *testing.T) {
 	t.Parallel()
 
 	var network compute.Network
-	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-test-network-basic-%s", suffixName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -28,7 +26,7 @@ func TestAccComputeNetwork_explicitAutoSubnet(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_basic(networkName),
+				Config: testAccComputeNetwork_basic(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						t, "google_compute_network.bar", &network),
@@ -49,8 +47,6 @@ func TestAccComputeNetwork_customSubnet(t *testing.T) {
 	t.Parallel()
 
 	var network compute.Network
-	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-test-network-custom-sn-%s", suffixName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -58,7 +54,7 @@ func TestAccComputeNetwork_customSubnet(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_custom_subnet(networkName),
+				Config: testAccComputeNetwork_custom_subnet(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						t, "google_compute_network.baz", &network),
@@ -79,8 +75,7 @@ func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 	t.Parallel()
 
 	var network compute.Network
-	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-test-network-routing-mode-%s", suffixName)
+	networkName := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -123,7 +118,7 @@ func TestAccComputeNetwork_numericId(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_basic(networkName),
+				Config: testAccComputeNetwork_basic(suffixName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr("google_compute_network.bar", "numeric_id", regexp.MustCompile("^\\d{1,}$")),
 					resource.TestCheckResourceAttr("google_compute_network.bar", "id", networkId),
@@ -142,8 +137,6 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 	t.Parallel()
 
 	var network compute.Network
-	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-test-network-network-default-routes-%s", suffixName)
 
 	expectedRoutingMode := "REGIONAL"
 
@@ -153,7 +146,7 @@ func TestAccComputeNetwork_default_routing_mode(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_basic(networkName),
+				Config: testAccComputeNetwork_basic(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						t, "google_compute_network.bar", &network),
@@ -169,8 +162,6 @@ func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
 	t.Parallel()
 
 	var network compute.Network
-	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-test-network-network-default-routes-%s", suffixName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -178,7 +169,7 @@ func TestAccComputeNetwork_networkDeleteDefaultRoute(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetwork_deleteDefaultRoute(networkName),
+				Config: testAccComputeNetwork_deleteDefaultRoute(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNetworkExists(
 						t, "google_compute_network.bar", &network),
@@ -195,8 +186,7 @@ func TestAccComputeNetwork_networkFirewallPolicyEnforcementOrderAndUpdate(t *tes
 
 	var network compute.Network
 	var updatedNetwork compute.Network
-	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-test-network-firewall-policy-enforcement-order-%s", suffixName)
+	networkName := acctest.RandString(t, 10)
 
 	defaultNetworkFirewallPolicyEnforcementOrder := "AFTER_CLASSIC_FIREWALL"
 	explicitNetworkFirewallPolicyEnforcementOrder := "BEFORE_CLASSIC_FIREWALL"
@@ -408,56 +398,56 @@ func testAccCheckComputeNetworkWasUpdated(newNetwork *compute.Network, oldNetwor
 	}
 }
 
-func testAccComputeNetwork_basic(networkName string) string {
+func testAccComputeNetwork_basic(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
-  name                    = "%s"
+  name                    = "tf-test-network-basic-%s"
   auto_create_subnetworks = true
 }
-`, networkName)
+`, suffix)
 }
 
-func testAccComputeNetwork_custom_subnet(networkName string) string {
+func testAccComputeNetwork_custom_subnet(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "baz" {
-  name                    = "%s"
+  name                    = "tf-test-network-custom-sn-%s"
   auto_create_subnetworks = false
 }
-`, networkName)
+`, suffix)
 }
 
-func testAccComputeNetwork_routing_mode(networkName, routingMode string) string {
+func testAccComputeNetwork_routing_mode(network, routingMode string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "acc_network_routing_mode" {
-  name         = "%s"
+  name         = "tf-test-network-routing-mode-%s"
   routing_mode = "%s"
 }
-`, networkName, routingMode)
+`, network, routingMode)
 }
 
-func testAccComputeNetwork_deleteDefaultRoute(networkName string) string {
+func testAccComputeNetwork_deleteDefaultRoute(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "bar" {
-  name                            = "%s"
+  name                            = "tf-test-network-delete-default-routes-%s"
   delete_default_routes_on_create = true
   auto_create_subnetworks         = false
 }
-`, networkName)
+`, suffix)
 }
 
-func testAccComputeNetwork_networkFirewallPolicyEnforcementOrderDefault(networkName string) string {
+func testAccComputeNetwork_networkFirewallPolicyEnforcementOrderDefault(network string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "acc_network_firewall_policy_enforcement_order" {
-  name = "%s"
+  name = "tf-test-network-firewall-policy-enforcement-order-%s"
 }
-`, networkName)
+`, network)
 }
 
-func testAccComputeNetwork_networkFirewallPolicyEnforcementOrderUpdate(networkName, order string) string {
+func testAccComputeNetwork_networkFirewallPolicyEnforcementOrderUpdate(network, order string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "acc_network_firewall_policy_enforcement_order" {
-  name                                      = "%s"
+  name                                      = "tf-test-network-firewall-policy-enforcement-order-%s"
   network_firewall_policy_enforcement_order = "%s"
 }
-`, networkName, order)
+`, network, order)
 }

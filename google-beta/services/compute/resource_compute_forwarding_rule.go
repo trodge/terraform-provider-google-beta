@@ -681,10 +681,11 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		obj["region"] = regionProp
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules")
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Creating new ForwardingRule: %#v", obj)
 	billingProject := ""
@@ -714,14 +715,15 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	err = ComputeOperationWaitTime(
-		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Creating ForwardingRule", userAgent,
+		config, res, project, "Creating ForwardingRule", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -802,10 +804,11 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	billingProject := ""
 
@@ -965,10 +968,11 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["target"] = targetProp
 		}
 
-		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setTarget")
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -991,7 +995,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		err = ComputeOperationWaitTime(
-			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating ForwardingRule", userAgent,
+			config, res, project, "Updating ForwardingRule", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -1007,10 +1011,11 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["allowGlobalAccess"] = allowGlobalAccessProp
 		}
 
-		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1033,7 +1038,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		err = ComputeOperationWaitTime(
-			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating ForwardingRule", userAgent,
+			config, res, project, "Updating ForwardingRule", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -1055,10 +1060,11 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["labels"] = labelsProp
 		}
 
-		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setLabels")
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1081,7 +1087,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		err = ComputeOperationWaitTime(
-			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating ForwardingRule", userAgent,
+			config, res, project, "Updating ForwardingRule", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -1120,10 +1126,11 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			obj["allowPscGlobalAccess"] = allowPscGlobalAccessProp
 		}
 
-		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1146,7 +1153,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		err = ComputeOperationWaitTime(
-			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating ForwardingRule", userAgent,
+			config, res, project, "Updating ForwardingRule", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
@@ -1173,10 +1180,11 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
 
-	url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ForwardingRule %q", d.Id())
@@ -1200,7 +1208,7 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 	}
 
 	err = ComputeOperationWaitTime(
-		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Deleting ForwardingRule", userAgent,
+		config, res, project, "Deleting ForwardingRule", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -1223,10 +1231,11 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	// Explicitly set virtual fields to default values on import

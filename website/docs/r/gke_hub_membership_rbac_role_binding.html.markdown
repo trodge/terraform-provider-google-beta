@@ -36,12 +36,10 @@ To get more information about MembershipRBACRoleBinding, see:
 ```hcl
 resource "google_container_cluster" "primary" {
   provider = google-beta
-  name               = "basic-cluster"
+  name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection  = "true"
-  network       = "default"
-  subnetwork    = "default"
 }
 
 resource "google_gke_hub_membership" "membership" {

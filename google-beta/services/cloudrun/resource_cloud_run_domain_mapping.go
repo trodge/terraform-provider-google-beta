@@ -394,7 +394,6 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
-
 		if err != nil {
 			return nil, err
 		}

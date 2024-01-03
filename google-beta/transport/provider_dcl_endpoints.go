@@ -45,6 +45,12 @@ var CloudBuildWorkerPoolEndpointEntry = &schema.Schema{
 	Optional: true,
 }
 
+var ClouddeployEndpointEntryKey = "clouddeploy_custom_endpoint"
+var ClouddeployEndpointEntry = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+}
+
 var CloudResourceManagerEndpointEntryKey = "cloud_resource_manager_custom_endpoint"
 var CloudResourceManagerEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -85,6 +91,7 @@ type DCLConfig struct {
 	ApikeysBasePath              string
 	AssuredWorkloadsBasePath     string
 	CloudBuildWorkerPoolBasePath string
+	ClouddeployBasePath          string
 	CloudResourceManagerBasePath string
 	EventarcBasePath             string
 	FirebaserulesBasePath        string
@@ -97,6 +104,7 @@ func ConfigureDCLProvider(provider *schema.Provider) {
 	provider.Schema[ApikeysEndpointEntryKey] = ApikeysEndpointEntry
 	provider.Schema[AssuredWorkloadsEndpointEntryKey] = AssuredWorkloadsEndpointEntry
 	provider.Schema[CloudBuildWorkerPoolEndpointEntryKey] = CloudBuildWorkerPoolEndpointEntry
+	provider.Schema[ClouddeployEndpointEntryKey] = ClouddeployEndpointEntry
 	provider.Schema[CloudResourceManagerEndpointEntryKey] = CloudResourceManagerEndpointEntry
 	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
 	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
@@ -119,6 +127,11 @@ func HandleDCLCustomEndpointDefaults(d *schema.ResourceData) {
 	if d.Get(CloudBuildWorkerPoolEndpointEntryKey) == "" {
 		d.Set(CloudBuildWorkerPoolEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_BUILD_WORKER_POOL_CUSTOM_ENDPOINT",
+		}, ""))
+	}
+	if d.Get(ClouddeployEndpointEntryKey) == "" {
+		d.Set(ClouddeployEndpointEntryKey, MultiEnvDefault([]string{
+			"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
 		}, ""))
 	}
 	if d.Get(CloudResourceManagerEndpointEntryKey) == "" {
@@ -173,6 +186,12 @@ func ConfigureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_sc
 			CustomEndpointValidator(),
 		},
 	}
+	frameworkSchema.Attributes["clouddeploy_custom_endpoint"] = framework_schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			CustomEndpointValidator(),
+		},
+	}
 	frameworkSchema.Attributes["cloud_resource_manager_custom_endpoint"] = framework_schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
@@ -215,6 +234,7 @@ func ProviderDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
 	config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
 	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
 	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
+	config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
 	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)

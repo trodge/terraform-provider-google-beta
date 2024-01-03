@@ -293,11 +293,6 @@ There must be at least one IP address available in the subnet's primary range. T
 								},
 							},
 						},
-						"custom_routes_enabled": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Enables custom routes to be imported and exported for the Dataproc Metastore service's peered VPC network.`,
-						},
 					},
 				},
 			},
@@ -1141,8 +1136,6 @@ func flattenDataprocMetastoreServiceNetworkConfig(v interface{}, d *schema.Resou
 	transformed := make(map[string]interface{})
 	transformed["consumers"] =
 		flattenDataprocMetastoreServiceNetworkConfigConsumers(original["consumers"], d, config)
-	transformed["custom_routes_enabled"] =
-		flattenDataprocMetastoreServiceNetworkConfigCustomRoutesEnabled(original["customRoutesEnabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataprocMetastoreServiceNetworkConfigConsumers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1169,10 +1162,6 @@ func flattenDataprocMetastoreServiceNetworkConfigConsumersEndpointUri(v interfac
 }
 
 func flattenDataprocMetastoreServiceNetworkConfigConsumersSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDataprocMetastoreServiceNetworkConfigCustomRoutesEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1550,13 +1539,6 @@ func expandDataprocMetastoreServiceNetworkConfig(v interface{}, d tpgresource.Te
 		transformed["consumers"] = transformedConsumers
 	}
 
-	transformedCustomRoutesEnabled, err := expandDataprocMetastoreServiceNetworkConfigCustomRoutesEnabled(original["custom_routes_enabled"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedCustomRoutesEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["customRoutesEnabled"] = transformedCustomRoutesEnabled
-	}
-
 	return transformed, nil
 }
 
@@ -1594,10 +1576,6 @@ func expandDataprocMetastoreServiceNetworkConfigConsumersEndpointUri(v interface
 }
 
 func expandDataprocMetastoreServiceNetworkConfigConsumersSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandDataprocMetastoreServiceNetworkConfigCustomRoutesEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
